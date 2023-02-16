@@ -66,3 +66,5 @@ export const hexToRgb = (hex, toArray) => {
 export const rgbToHex = rgb => rgb.reduce((a, b) => a + (b | 256).toString(16).slice(1), '#')
 
 export const smoothStep = x => x > 1 ? 1 : x > 0 ? 3 * x * x - 2 * x * x * x : 0
+
+export const clamp = (i, min, max) => Math.min(Math.max(i, min), max)
