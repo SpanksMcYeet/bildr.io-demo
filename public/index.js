@@ -1,6 +1,6 @@
 import Canvas from './canvas.js'
 import * as utils from './utils.js'
-import { mouse, keys } from './events.js'
+import { mouse, zoom, keys } from './events.js'
 import GameFeed from './gamefeed.js'
 
 // Apply the canvas
@@ -37,20 +37,33 @@ const Colors = utils.colors
       c.healPlus(cx, cy, size * 0.65, colors.red, mixColors(colors.red, colors.black, 0.65), 12, 1)
   }
     */
+let pos = { x: 0, y: 0 }
+let last = { x: 0, y: 0 }
 const Client = {
-  setBackground(width, height) {
+  refresh() {
+    let diff = { x: 0, y: 0 }
+    diff.x = mouse.x - last.x
+    diff.y = mouse.y - last.y
+    
+    if (mouse.left) {
+      pos.x += diff.x
+      pos.y += diff.y
+    }
+    last.x = mouse.x
+    last.y = mouse.y
+  },
+  setBackground(width, height, x, y, zoom) {
     let w = width * 0.5
     let h = height * 0.5
     c.box(w, h, 3000, 3000, 0, utils.mixColors(Colors.lgray, Colors.pureBlack, 0.1))
     c.box(w, h, 3000, 3000, 0, Colors.lgray)
     
     for (let i = -12; i <= 12; i++) {
-      c.box(w, i * 60 + h, 3000, 2, 0, utils.mixColors(Colors.lgray, Colors.pureBlack, 0.1))
-      c.box(i * 60 + w, h, 2, 3000, 0, utils.mixColors(Colors.lgray, Colors.pureBlack, 0.1))
+      c.box(w, i * (60 - (zoom * 2)) + h + y, 3000, 2, 0, utils.mixColors(Colors.lgray, Colors.pureBlack, 0.1))
+      c.box(i * (60 - (zoom * 2)) + w + x, h, 2, 3000, 0, utils.mixColors(Colors.lgray, Colors.pureBlack, 0.1))
     }
   }
 }
-
 let time = 0
 let gameLoop = newTime => {
   let timeElapsed = newTime - time
@@ -64,8 +77,11 @@ let gameLoop = newTime => {
   } else {
     width = height * ratio
   }
-    
-  Client.setBackground(width, height)
+  
+  Client.setBackground(width, height, pos.x, pos.y, zoom)
+  Client.refresh()
+
+  
   /*
   // Update entity facing
     for (let e of entities) {
